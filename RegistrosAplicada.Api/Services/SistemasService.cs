@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RegistrosAplicada.Api.DAL;
+using Shared.Models;
 using System.Linq.Expressions;
 
 namespace RegistrosAplicada.Api.Services;
