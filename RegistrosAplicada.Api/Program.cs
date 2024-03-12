@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using RegistrosAplicada.Api.DAL;
-using RegistrosAplicada.Api.Services;
 using RegistrosAplicada.Client;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,12 +13,6 @@ var ConStr = builder.Configuration.GetConnectionString("ConStr");
 
 //inyectar el contextopara que este disponible en los constructores donde los solicitemos
 builder.Services.AddDbContext<Contexto>(Options => Options.UseSqlite(ConStr));
-
-//inyectar los Services
-builder.Services.AddScoped<PrioridadesService>();
-builder.Services.AddScoped<ClientesService>();
-builder.Services.AddScoped<TicketsService>();
-builder.Services.AddScoped<SistemasService>();
 
 var app = builder.Build();
 
