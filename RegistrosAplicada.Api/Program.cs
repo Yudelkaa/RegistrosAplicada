@@ -1,27 +1,25 @@
 using Microsoft.EntityFrameworkCore;
 using RegistrosAplicada.Api.DAL;
-using RegistrosAplicada.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorComponents()
-	.AddInteractiveServerComponents();
 
-//leer la connection string llamada ConStr que pusimos en appsettings.json
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 var ConStr = builder.Configuration.GetConnectionString("ConStr");
-
-//inyectar el contextopara que este disponible en los constructores donde los solicitemos
-builder.Services.AddDbContext<Contexto>(Options => Options.UseSqlite(ConStr));
+builder.Services.AddDbContextFactory<Contexto>(op => op.UseSqlite(ConStr));
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
-	app.UseExceptionHandler("/Error");
-	// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-	app.UseHsts();
+	app.UseSwagger();
+	app.UseSwaggerUI();
 }
 
 //Cors
@@ -35,10 +33,8 @@ app.UseCors(options =>
 
 app.UseHttpsRedirection();
 
-app.UseStaticFiles();
-app.UseAntiforgery(); //evitar hackeos de tokens
+app.UseAuthorization();
 
-app.MapRazorComponents<App>()
-	.AddInteractiveServerRenderMode();
+app.MapControllers();
 
 app.Run();
