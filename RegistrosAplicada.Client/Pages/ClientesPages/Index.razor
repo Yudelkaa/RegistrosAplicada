@@ -1,5 +1,159 @@
-﻿<h3>Index</h3>
+﻿@page "/Clientes"
+@inject NavigationManager navigation
+@inject HttpClient httpClient
+
+<PageTitle>Clientes</PageTitle>
+<div class="container">
+	<div class="card shadow-lg">
+			<div class="card-header alert-secondary" style="color: white; background-color: royalblue;">
+			<NavLink class="btn btn-light float-end" href="Create">Crear clientes</NavLink>
+			<h1 class="fw-bold">Clientes</h1>
+		</div>
+	
+		<div class="card-body">
+			<div class="mb-3">
+				<div class="row align-items-center">
+					<label class="form-label fw-bold" for="filtro">Filtrar:</label>
+					<div class="col-3">
+						<InputSelect id="filtro" class="form-select" @bind-Value="filtro">
+							<option>Elije una opci&oacute;n</option>
+							<option value="id">Id</option>
+							<option value="nombre">Nombre</option>
+							<option value="rnc">RNC</option>
+						</InputSelect>
+					</div>
+					<div class="col-4">
+						<div class="input-group">
+							<InputText class="form-control" @bind-Value="valorFiltro" placeholder="Ingrese el dato"></InputText>
+							<button type="button" class="btn btn-outline-primary" @onclick="Buscar"><i class="bi bi-search-heart"/></button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<table class="table table-bordered">
+				<thead>
+					<tr>
+						<th>ClienteId</th>
+						<th>Nombre</th>
+						<th>Tel&eacute;fono</th>
+						<th>Celular</th> 
+						<th>RNC</th>
+						<th>Email</th>
+						<th>Direcci&oacute;n</th>
+						<th>Ver</th>
+						<th>Editar</th>
+						<th>Eliminar</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var cliente in clientes)
+					{
+						<tr>
+							<td>@cliente.ClientesId</td>
+							<td>@cliente.Nombres</td>
+							<td>@cliente.Telefono</td>
+						    <td>@cliente.Celular</td> 
+							<td>@cliente.RNC</td>
+							<td>@cliente.Email</td>
+							<td>@cliente.Direccion</td>
+							<td><button type="button" class="btn btn-outline-info" @onclick="()=> Ver(cliente.ClientesId)"><i class="bi bi-eye" /></button></td>
+							<td><button type="button" class="btn btn-outline-warning" @onclick="()=> Editar(cliente.ClientesId)"><i class="bi bi-pencil" /></button></td>
+							<td><button type="button" class="btn btn-outline-danger" @onclick="()=> Eliminar(cliente.ClientesId)"><i class="bi bi-trash" /></button></td>
+						</tr>
+					}
+				</tbody>
+			</table>
+			<div class="card-footer">
+				<p class="fw-bold">Total: @clientes.Count</p>
+			</div>
+		</div>
+	</div>
+	@*Mensaje*@
+	@mensaje
+</div>
 
 @code {
+	public List<Clientes> clientes = new List<Clientes>();
+	public string? filtro { get; set; }
+	public string? mensaje { get; set; }
+	public string? valorFiltro { get; set; }
 
+	protected override async Task OnInitializedAsync()
+	{
+
+		clientes = await httpClient.GetFromJsonAsync<List<Clientes>>("api/Clientes");
+
+
+		if (clientes.Count == 0)
+			StateHasChanged();
+	}
+
+	public async Task Buscar()
+	{
+		if (filtro == null)
+		{
+			mensaje = "Elija";
+			StateHasChanged();
+			await Task.Delay(3000);
+			return;
+		}
+
+		switch (filtro)
+		{
+			case "id":
+				if (int.TryParse(valorFiltro, out int id))
+				{
+					var buscarId = clientes.Where(c => c.ClientesId == id).FirstOrDefault();
+					if (buscarId != null)
+					{
+						clientes.Clear();
+						clientes.Add(buscarId);
+						mensaje = "Cliente encontrado";
+					}
+					else
+					{
+						mensaje = "No se encontraron resultados";
+					}
+				}
+				else
+				{
+					mensaje = "El valor ingresado para ClienteId no es válido";
+				}
+				StateHasChanged();
+				break;
+
+			case "nombre":
+				var buscarNombre = clientes.Where(c => c.Nombres == valorFiltro).ToList();
+				if (buscarNombre.Any())
+				{
+					clientes = buscarNombre;
+					mensaje = "Cliente encontrado";
+				}
+				else
+				{
+					mensaje = "No se encontraron resultados";
+				}
+				StateHasChanged();
+				break;
+		}
+	}
+
+	void Registrar()
+	{
+		navigation.NavigateTo("/Create");
+	}
+
+	void Ver(int id)
+	{
+		navigation.NavigateTo($"/View/ClienteId={id}");
+	}
+	void Editar(int id)
+	{
+		navigation.NavigateTo($"/Edit/ClienteId={id}");
+	}
+	void Eliminar(int id)
+	{
+		navigation.NavigateTo($"/Delete/ClienteId={id}");
+	}
 }

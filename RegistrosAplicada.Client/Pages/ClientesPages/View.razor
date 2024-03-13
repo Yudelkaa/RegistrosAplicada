@@ -1,5 +1,72 @@
-﻿<h3>View</h3>
+﻿@page "/View"
+@using Shared.Models
+@page "/View/{ClienteId:int}"
+@inject HttpClient httpClient
+
+<PageTitle>Ver Vehiculo</PageTitle>
+<div class="card shadow-lg">
+	<div class="card-header" style="color: white; background-color: royalblue;">
+		<h1 class="text-light">Ver informaci&oacute;n del vehiculo</h1>
+	</div>
+
+	<div class="card">
+		<div class="card-body">
+			<div class="row">
+				<td class="fw-bold">@clientes.ClientesId</td>
+				<td class="fw-bold">@clientes.Nombres</td>
+				<td class="fw-bold">@clientes.Telefono</td>
+				<td class="fw-bold">@clientes.Celular</td>
+				<td class="fw-bold">@clientes.RNC</td>
+				<td class="fw-bold">@clientes.Email</td>
+				<td class="fw-bold"> @clientes.Direccion</td>
+			</div>
+		</div>
+		<table class="table table-bordered text-center">
+			<thead>
+				<tr>
+					<th>Id</th>
+					<th>Nombre</th>
+					<th>Tel&eacute;fono</th>
+					<th>Celular</th>
+					<th>RNC</th>
+					<th>Celular</th>
+					<th>Email</th>
+					<th>Direcci&oacute;n</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var clientes in listaClientes)
+				{
+					<tr>
+						<td>@clientes.ClientesId</td>
+						<td>@clientes.Nombres</td>
+						<td>@clientes.Telefono</td>
+						<td>@clientes.Celular</td>
+						<td>@clientes.RNC</td>
+						<td>@clientes.Email</td>
+						<td>@clientes.Direccion</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+	<div class="card-footer">
+		<a href="/Details" class="btn btn-primary bi bi-house">Atrás</a>
+	</div>
+</div>
 
 @code {
+
+	[Parameter]
+	public int ClientesId { get; set; }
+	public Clientes clientes { get; set; } = new Clientes();
+	public List<Clientes> listaClientes = new List<Clientes>();
+
+
+	protected override async Task OnInitializedAsync()
+	{
+
+		clientes = await httpClient.GetFromJsonAsync<Clientes>($"api/Clientes/{ClientesId}");
+	}
 
 }

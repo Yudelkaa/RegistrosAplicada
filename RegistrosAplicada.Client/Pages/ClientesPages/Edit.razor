@@ -1,5 +1,91 @@
-﻿<h3>Edit</h3>
+﻿@page "/Edit/{ClientesId:int}"
+@inject NavigationManager NavigationManager
+@using Shared.Models
+@inject HttpClient httpClient
+
+<PageTitle>Editar Clientes</PageTitle>
+<EditForm Model="clientes" OnValidSubmit="Modificar">
+	<DataAnnotationsValidator />
+
+	<div class="container">
+		<div class="card shadow-lg">
+			<div class="card-header alert-secondary" style="color: white; background-color: royalblue;">
+				<h3 class="fw-bold">Editar Clienntes</h3>
+			</div>
+			<div class="card-body">
+				<div class="row">
+					<div class="col-6">
+						<label class="fw-bold">Nombre</label>
+						<InputText @bind-Value="clientes.Nombres" class="form-control" />
+						<ValidationMessage For="@(()=> clientes.Nombres)" />
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-6">
+						<label class="fw-bold">Email</label>
+						<InputText @bind-Value="clientes.Email" class="form-control" />
+						<ValidationMessage For="@(()=> clientes.Email)" />
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-6">
+						<label class="fw-bold">Tel*&eacute;fono</label>
+						<InputNumber @bind-Value="clientes.Telefono" class="form-control" />
+						<ValidationMessage For="@(()=> clientes.Telefono)" />
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-6">
+						<label class="fw-bold">Celular</label>
+						<InputNumber @bind-Value="clientes.Celular" class="form-control" />
+						<ValidationMessage For="@(()=> clientes.Celular)" />
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-6">
+						<label class="fw-bold">Direcci&oacute;</label>
+						<InputText @bind-Value="clientes.Direccion" class="form-control" />
+						<ValidationMessage For="@(()=> clientes.Direccion)" />
+					</div>
+				</div>
+			</div>
+			<div class="card-footer d-flex justify-content-center">
+				<div class="px-2">
+					<button type="button" class="btn btn-primary" href="Index">Volver</button>
+				</div>
+				<button type="submit" class="btn btn-success"><i class="bi bi-floppy-fill" /> Modificar</button>
+			</div>
+		</div>
+		@mensaje
+	</div>
+</EditForm>
 
 @code {
+	[Parameter]
+	public int ClientesId { get; set; }
+	public Clientes clientes { get; set; } = new Clientes();
+	public string mensaje = "";
+
+	protected override async Task OnInitializedAsync()
+	{
+
+		if (ClientesId > 0)
+		{
+			clientes = await httpClient.GetFromJsonAsync<Clientes>($"api/Clientes/{ClientesId}");
+		}
+	}
+
+	public async Task Modificar()
+	{
+		var response = await httpClient.PutAsJsonAsync($"api/Clientes/{clientes.ClientesId}", clientes);
+		if (response.IsSuccessStatusCode)
+		{
+			mensaje = "Modificación hecha correctamente";
+		}
+		else
+		{
+			mensaje = "Error de capa 8";
+		}
+	}
 
 }

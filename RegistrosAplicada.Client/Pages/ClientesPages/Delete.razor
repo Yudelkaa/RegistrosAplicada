@@ -1,5 +1,56 @@
-﻿<h3>Delete</h3>
+﻿@page "/Delete"
+@page "/Delete/{ClienteId:int}"
+@using Shared.Models
+@inject HttpClient httpClient
+
+<PageTitle>Eliminar Vehiculo</PageTitle>
+<div class="container">
+	<div class="card shadow-lg">
+		<div class="card-header alert-secondary" style="color: white; background-color: royalblue;">
+			<h2>Eliminar</h2>
+		</div>
+
+		<div class="card-body">
+			<h3 class="text-danger text-center">¿Seguro que quiere eliminar?</h3>
+			<ul>
+				<li>@cliente.ClientesId</li>
+				<li>@cliente.Nombres</li>
+				<li>@cliente.Telefono</li>
+				<li>@cliente.Celular</li>
+				<li>@cliente.RNC</li>
+				<li>@cliente.Email</li>
+				<li>@cliente.Direccion</li>
+			</ul>
+		</div>
+		<div class="card-footer text-center">
+			<div class="input-group">
+				<button class="btn btn-danger" @onclick="Eliminar">S&iacute;</button>
+				<a href="/Details" class="btn btn-success">Volver</a>
+			</div>
+		</div>
+	</div>
+</div>
+
 
 @code {
+	public int ClienteId { get; set; }
+	public Clientes cliente { get; set; } = new Clientes();
+	public List<Clientes> clientes = new List<Clientes>();
+	public string? filtro { get; set; }
+	public string? mensaje { get; set; }
 
+
+	public async Task Eliminar()
+	{
+		var eliminado = await httpClient.DeleteAsync($"api/Clientes/{ClienteId}");
+		if (eliminado.IsSuccessStatusCode)
+		{
+			mensaje = "Eliminado correctamente";
+			cliente = new Clientes();
+		}
+		else
+		{
+			mensaje = "Error al eliminar";
+		}
+	}
 }
