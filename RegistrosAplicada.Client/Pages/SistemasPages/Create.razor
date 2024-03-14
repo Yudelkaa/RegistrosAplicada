@@ -1,5 +1,90 @@
-﻿<h3>Create</h3>
+﻿@page "/CreateSistemas"
+@inject NavigationManager NavigationManager
+@inject HttpClient httpClient
+
+<PageTitle>Registro de Sistemas</PageTitle>
+<EditForm Model="sistema" OnValidSubmit="Crear">
+	<DataAnnotationsValidator />
+	<div class="container">
+		<div class="card shadow-lg">
+			<div class="card-header alert-secondary" style="color: white; background-color: royalblue;">
+				@*Header*@
+				<div>
+					<NavLink class="btn btn-light float-end" href="/Sistemas">Consultar Sistema</NavLink>
+					<h1 class="fw-bold">Registrar</h1>
+					<h3>Sistema</h3>
+				</div>
+			</div>
+			@*Body*@
+			<div class="card-body">
+				<div>
+					@*Id*@
+					<div>
+						<div>
+							<label class="form-label fw-bold" for="ID">Id:</label>
+							<InputNumber id="ID" class="form-control" @bind-Value="sistema.ID"></InputNumber>
+						</div>
+						<div>
+							<label class="form-label" for="nombre"><strong>Nombre:</strong></label>
+							<InputText id="nombre" class="form-control" @bind-Value="sistema.Nombre" placeholder="Escriba un nombre para el sistema"></InputText>
+							<ValidationMessage For="@(() => sistema.Nombre)"></ValidationMessage>
+						</div>
+
+					</div>
+				</div>
+			</div>
+
+			@*Boton*@
+			<div class="card-footer d-flex">
+				<div class="px-2">
+					<button type="button" class="btn btn-primary bi bi-list-columns-reverse" @onclick="Detalle"> Consultar</button>
+				</div>
+				<div>
+					<button type="submit" class="btn btn-success">
+						<i class="bi bi-floppy" /> Guardar
+					</button>
+				</div>
+			</div>
+			@mensaje
+		</div>
+	</div>
+</EditForm>
 
 @code {
+	public int SistemaId {get; set;}
+	public Sistemas sistema { get; set; } = new Sistemas();
+	public string mensaje { get; set; } = string.Empty;
 
+
+	private async Task Crear()
+	{
+		if (await Validar())
+		{
+			mensaje = "El sistema ya existe";
+		}
+		else
+		{
+			var response = await httpClient.PostAsJsonAsync("api/Sistemas", sistema);
+			if (response.IsSuccessStatusCode)
+			{
+				mensaje = "Creado correctamente";
+				sistema = new Sistemas();
+			}
+			else
+			{
+				mensaje = "Error al crear el sistema";
+			}
+		}
+	}
+
+	private async Task<bool> Validar()
+	{
+		var response = await httpClient.GetAsync($"api/Sistemas/{SistemaId}");
+		return response.IsSuccessStatusCode;
+	}
+
+	void Detalle()
+	{
+		NavigationManager.NavigateTo("/Index");
+	}
 }

@@ -1,5 +1,56 @@
-﻿<h3>View</h3>
+﻿@page "/ViewSistemas"
+@using Shared.Models
+@page "/ViewSistemas/{sistemasId:int}"
+@inject HttpClient httpClient
+
+<PageTitle>Ver Sistemas</PageTitle>
+<div class="card shadow-lg">
+	<div class="card-header" style="color: white; background-color: royalblue;">
+		<h1 class="text-light">Ver</h1>
+	</div>
+
+	<div class="card">
+		<div class="card-body">
+			<div class="row">
+				<td class="fw-bold">@sistemas.Nombre</td>
+				<td class="fw-bold">@sistemas.ID</td>
+			</div>
+		</div>
+		<table class="table table-bordered text-center">
+			<thead>
+				<tr>
+					<th>Id</th>
+					<th>Descripci&oacute;n</th>
+					<th>D&iacute;as de compromiso</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var prioridades in listaSistemas)
+				{
+					<tr>
+						<td>@sistemas.Nombre</td>
+						<td>@sistemas.ID</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+	<div class="card-footer">
+		<a href="/Details" class="btn btn-primary bi bi-house">Atrás</a>
+	</div>
+</div>
 
 @code {
+
+	[Parameter]
+	public int sistemasId { get; set; }
+	public Sistemas sistemas { get; set; } = new Sistemas();
+	public List<Sistemas> listaSistemas = new List<Sistemas>();
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		sistemas = await httpClient.GetFromJsonAsync<Sistemas>($"api/Sistemas/{sistemasId}");
+	}
 
 }

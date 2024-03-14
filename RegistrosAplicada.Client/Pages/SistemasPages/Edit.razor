@@ -1,5 +1,93 @@
-﻿<h3>Edit</h3>
+﻿@page "/EditSistemas"
+@page "/EditSistemas/{sistemaId:int}"
+@inject HttpClient httpClient
+@inject NavigationManager NavigationManager
+@using Shared.Models
+
+<PageTitle>Editar Sistema</PageTitle>
+<EditForm Model="sistema" OnValidSubmit="Modificar">
+    <DataAnnotationsValidator />
+    <div class="container">
+        <did class="card shadow-lg">
+            <div class="card-header">
+                <h3 class="fw-bold">Editar Sistema></h3>
+            </div>
+            <div class="card-body">
+                <div class="col-3"></div>
+                @*Id*@
+                <div class="mb-3">
+                    <div class="col-4">
+                        <label class="form-label fw-bold" for="sistemaid">Id:</label>
+                        <div class="input-group">
+                            <InputNumber  class="form-control" @bind-Value="sistema.ID"></InputNumber>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="col-4">
+                        <label class="form-label" for="nombre"><strong>Nombre:</strong></label>
+                        <InputText id="nombre" class="form-control" @bind-Value="sistema.Nombre" placeholder="Ej: Fulana de tal"></InputText>
+                        <ValidationMessage For="@(() => sistema.Nombre)"></ValidationMessage>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-center">
+                <div class="px-2">
+                    <button type="button" class="btn btn-primary" @onclick="Detalle">Volver</button>
+                </div>
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-floppy-fill" /> Modificar
+                </button>
+            </div>
+        </did>
+    </div>
+    @mensaje
+</EditForm>
 
 @code {
+    [Parameter]
+    public int sistemaId { get; set; }
+    public Sistemas sistema { get; set; } = new Sistemas();
+    public string mensaje { get; set; } = string.Empty;
+
+    public async Task Modificar()
+    {
+        if (await Validar())
+        {
+            mensaje = "Error, ya existe un sistema con este nombre";
+        }
+        else
+        {
+            HttpResponseMessage response = await httpClient.PutAsJsonAsync($"api/Sistemas/{sistemaId}", sistema);
+            if (response.IsSuccessStatusCode)
+            {
+                mensaje = "Modificación hecha correctamente";
+                Detalle();
+            }
+            else
+            {
+                mensaje = "Error al modificar el sistema";
+            }
+        }
+    }
+
+    public async Task<bool> Validar()
+    {
+        HttpResponseMessage response = await httpClient.GetAsync($"api/Sistemas/Validar/{sistema.Nombre}");
+        if (response.IsSuccessStatusCode)
+        {
+            return await response.Content.ReadFromJsonAsync<bool>();
+        }
+        else
+        {
+            mensaje = "Error al validar el sistema";
+            return false;
+        }
+    }
+
+    void Detalle()
+    {
+        NavigationManager.NavigateTo("/IndexSistemas");
+    }
 
 }

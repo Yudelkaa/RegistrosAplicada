@@ -1,5 +1,62 @@
-﻿<h3>Delete</h3>
+﻿@page "/DeleteSistemas"
+@page "/DeleteSistemas/{SistemasId:int}"
+@using Shared.Models
+@inject HttpClient httpClient
+
+<PageTitle>Eliminar Sistema</PageTitle>
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header text-center">
+            <h2>Eliminar</h2>
+        </div>
+
+        <div class="card-body">
+            <h3 class="text-danger text-center">¿Seguro que quiere eliminar?</h3>
+            <ul>
+                <li>Nombre: @sistema.Nombre</li>
+                <li>Id: @sistema.ID</li>
+            </ul>
+        </div>
+        <div class="card-footer text-center">
+            <div class="input-group">
+                <button class="btn btn-danger" @onclick="Eliminar">S&iacute;</button>
+                <a href="/Details" class="btn btn-success">Volver</a>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
+    [Parameter]
+    public int SistemasId { get; set; }
+    public Sistemas sistema { get; set; } = new Sistemas();
+    public List<Sistemas> listaSistemas{ get; set; } = new List<Sistemas>();
+    public string? mensaje { get; set; } = "";
 
+    public async Task Buscar()
+    {
+        var response = await httpClient.GetAsync($"api/Sistemas/{SistemasId}");
+        if (response.IsSuccessStatusCode)
+        {
+            sistema = await response.Content.ReadFromJsonAsync<Sistemas>();
+        }
+        else
+        {
+            sistema = null;
+        }
+    }
+
+    public async Task Eliminar()
+    {
+        var eliminado = await httpClient.DeleteAsync($"api/Sistemas/{SistemasId}");
+        if (eliminado.IsSuccessStatusCode)
+        {
+            mensaje = "Eliminado correctamente";
+            sistema = new Sistemas();
+        }
+        else
+        {
+            mensaje = "Error al eliminar";
+        }
+    }
 }
