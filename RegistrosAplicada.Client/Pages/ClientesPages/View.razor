@@ -3,10 +3,10 @@
 @page "/View/{ClienteId:int}"
 @inject HttpClient httpClient
 
-<PageTitle>Ver Vehiculo</PageTitle>
+<PageTitle>Ver Cliente</PageTitle>
 <div class="card shadow-lg">
 	<div class="card-header" style="color: white; background-color: royalblue;">
-		<h1 class="text-light">Ver informaci&oacute;n del vehiculo</h1>
+		<h1 class="text-light">Ver informaci&oacute;n del cliente</h1>
 	</div>
 
 	<div class="card">
@@ -18,7 +18,7 @@
 				<td class="fw-bold">@clientes.Celular</td>
 				<td class="fw-bold">@clientes.RNC</td>
 				<td class="fw-bold">@clientes.Email</td>
-				<td class="fw-bold"> @clientes.Direccion</td>
+				<td class="fw-bold">@clientes.Direccion</td>
 			</div>
 		</div>
 		<table class="table table-bordered text-center">

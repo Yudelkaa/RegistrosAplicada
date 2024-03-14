@@ -1,5 +1,85 @@
-﻿<h3>Create</h3>
+﻿@page "/CreatePrioridades"
+@using Shared.Models
+@inject HttpClient httpClient
+
+<PageTitle>Registro de Prioridades</PageTitle>
+<EditForm Model="prioridad" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header" style="color: white; background-color: royalblue;">
+                <NavLink class="btn btn-light float-end" href="Prioridades">Consultar Prioridades</NavLink>
+                <h1 class="fw-bold">Crear Prioridades</h1>
+            </div>
+
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <label class="fw-bold">Id prioridades:</label>
+                        <div class="input-group mb-3">
+                            <InputNumber @bind-Value="prioridad.PrioridadesId" class="form-control" aria-describedby="BotonBuscar" />
+                            <button @onclick="Buscar" class="btn btn-primary bi bi-search-heart" type="button" id="BotonBuscar"></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-6">
+                        <label class="form-label fw-bold" for="Descripcion">Descripción:</label>
+                        <InputText @bind-Value="prioridad.Descripcion" class="form-control" />
+                        <ValidationMessage For="@(() => prioridad.Descripcion)" class="text-danger" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-6">
+                        <label class="form-label fw-bold" for="DiasCompromiso">Días de compromiso:</label>
+                        <InputNumber @bind-Value="prioridad.DiasCompromiso" class="form-control" />
+                        <ValidationMessage For="@(() => prioridad.DiasCompromiso)" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer d-flex justify-content-center">
+                <button type="submit" class="btn btn-primary bi bi-floppy">Guardar</button>
+            </div>
+        </div>
+    </div>
+</EditForm>
 
 @code {
+    public Prioridades prioridad { get; set; } = new Prioridades();
 
+    public async Task Buscar()
+    {
+        var response = await httpClient.GetAsync($"api/Prioridades/{prioridad.PrioridadesId}");
+        if (response.IsSuccessStatusCode)
+        {
+            prioridad = await response.Content.ReadFromJsonAsync<Prioridades>();
+        }
+        else
+        {
+            // Handle error if the priority with the given ID is not found
+        }
+    }
+
+    public async Task Guardar()
+    {
+        var response = await httpClient.PostAsJsonAsync("api/Prioridades", prioridad);
+        if (response.IsSuccessStatusCode)
+        {
+            // Success, reset form
+            Nuevo();
+        }
+        else
+        {
+            // Handle error if the save operation fails
+        }
+    }
+
+    void Nuevo()
+    {
+        prioridad = new Prioridades();
+    }
 }

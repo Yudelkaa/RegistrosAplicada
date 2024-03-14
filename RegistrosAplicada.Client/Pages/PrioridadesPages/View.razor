@@ -1,5 +1,58 @@
-﻿<h3>View</h3>
+﻿@page "/ViewPrioridades"
+@using Shared.Models
+@page "/ViewPrioridades/{PrioridadesId:int}"
+@inject HttpClient httpClient
+
+<PageTitle>Ver Prioridades</PageTitle>
+<div class="card shadow-lg">
+	<div class="card-header" style="color: white; background-color: royalblue;">
+		<h1 class="text-light">Ver</h1>
+	</div>
+
+	<div class="card">
+		<div class="card-body">
+			<div class="row">
+				<td class="fw-bold">@prioridades.PrioridadesId</td>
+				<td class="fw-bold">@prioridades.Descripcion</td>
+				<td class="fw-bold">@prioridades.DiasCompromiso</td>
+			</div>
+		</div>
+		<table class="table table-bordered text-center">
+			<thead>
+				<tr>
+					<th>Id</th>
+					<th>Descripci&oacute;n</th>
+					<th>D&iacute;as de compromiso</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var prioridades in listaPrioridades)
+				{
+					<tr>
+						<td>@prioridades.PrioridadesId</td>
+						<td>@prioridades.Descripcion</td>
+						<td>@prioridades.DiasCompromiso</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+	<div class="card-footer">
+		<a href="/Details" class="btn btn-primary bi bi-house">Atrás</a>
+	</div>
+</div>
 
 @code {
+
+	[Parameter]
+	public int PrioridadesId { get; set; }
+	public Prioridades prioridades { get; set; } = new Prioridades();
+	public List<Prioridades> listaPrioridades = new List<Prioridades>();
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		prioridades = await httpClient.GetFromJsonAsync<Prioridades>($"api/Prioridades/{PrioridadesId}");
+	}
 
 }
