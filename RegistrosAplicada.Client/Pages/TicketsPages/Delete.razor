@@ -1,5 +1,69 @@
-﻿<h3>Delete</h3>
+﻿@page "/DeleteTickets"
+@page "/DeleteTickets/{TicketsId:int}"
+@inject HttpClient httpClient
+
+<PageTitle>Eliminar Tickets</PageTitle>
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header text-center">
+            <h2>Eliminar</h2>
+        </div>
+
+        <div class="card-body">
+            <h3 class="text-danger text-center">¿Seguro que quiere eliminar?</h3>
+            <ul>
+                <li>Tickets Id: @tickets.TicketId</li>
+                <li>Fecha: @tickets.Fecha</li>
+                <li>Descricpi&oacute;n: @tickets.Descripcion</li>
+                <li>Observaci&oacute;n: @tickets.Asunto</li>
+            </ul>
+        </div>
+        <div class="card-footer text-center">
+            <div class="input-group">
+                <button class="btn btn-danger" @onclick="Eliminar">S&iacute;</button>
+                <a href="/Index" class="btn btn-warning">Volver</a>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
+    [Parameter]
+    public int TicketsId { get; set; }
+    public Tickets tickets { get; set; } = new Tickets();
 
+    protected override async Task OnInitializedAsync()
+    {
+        if (TicketsId > 0)
+        {
+            tickets.TicketId = TicketsId;
+            await Buscar();
+        }
+    }
+
+    public async Task Buscar()
+    {
+        var response = await httpClient.GetAsync($"api/Tickets/{tickets.TicketId}");
+        if (response.IsSuccessStatusCode)
+        {
+            tickets = await response.Content.ReadFromJsonAsync<Tickets>();
+        }
+        else
+        {
+            tickets = null;
+        }
+    }
+
+    public async Task Eliminar()
+    {
+        var response = await httpClient.DeleteAsync($"api/Tickets/{tickets.TicketId}");
+        if (response.IsSuccessStatusCode)
+        {
+            tickets = new Tickets();
+        }
+        else
+        {
+            tickets = null;
+        }
+    }
 }

@@ -38,5 +38,8 @@ namespace Shared.Models
 		[Required(ErrorMessage = "Es requerido")]
 		public string? Descripcion { get; set; }
 
+		[ForeignKey("TicketId")]
+		public ICollection<TicketDetalle> TicketsDetalle { get; set; } = new List<TicketDetalle>();
+
 	}
 }

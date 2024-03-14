@@ -1,5 +1,123 @@
-﻿<h3>Index</h3>
+﻿@page "/Tickets"
+@inject HttpClient httpClient
+
+<PageTitle>Detalle de Tickets</PageTitle>
+<EditForm Model="tickets" OnValidSubmit="Guardar">
+	<div class="container">
+		<div class="card shadow-lg">
+			<div class="card-header alert-secondary" style="color: white; background-color: royalblue;">
+				<NavLink class="btn btn-light float-end" href="/CreateTickets">Registrar Tickets</NavLink>
+				<h1><strong>Consultas Tickets</strong></h1>
+			</div>
+
+			<table class="table table-striped table-bordered justify-content">
+				<thead>
+					<tr class="text-center">
+						<th>TicketId</th>
+						<th>ClienteId</th>
+						<th>Fecha</th>
+						<th>Solicitado Por:</th>
+						<th>Asunto</th>
+						<th>Descripci&oacute;n</th>
+						<th>Editar</th>
+						<th>Eliminar</th>
+
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var ticket in TicketsList)
+					{
+						<tr class="text-center">
+							<td>@ticket.TicketId</td>
+							<td>@ticket.ClienteId</td>
+							<td>@ticket.Fecha</td>
+							<td>@ticket.SolicitadoPor</td>
+							<td>@ticket.Asunto</td>
+							<td>@ticket.Descripcion</td>
+							<td>
+								<a href="/Edit/@tickets.TicketId" class="bi bi-pencil btn btn-success" />
+							</td>
+							<td><button class="btn btn-danger bi bi-trash" @onclick="() => Eliminar()"></button></td>
+
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+		<div>@mensaje</div>
+	</div>
+</EditForm>
 
 @code {
+	public Tickets? tickets { get; set; } = new Tickets();
+	public string mensaje = "";
+	public int? ticketEditando = null;
 
+	public int Filtro { get; set; }
+	public List<Tickets> TicketsList = new List<Tickets>();
+	public int cuenta { get; set; }
+
+	public DateTime Desde { get; set; }
+	public DateTime Hasta { get; set; }
+
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Buscar();
+		Desde = DateTime.Now.AddMonths(-1);
+		Hasta = DateTime.Now;
+
+	}
+
+	public async Task Guardar()
+	{
+		using var response = await httpClient.PostAsJsonAsync("api/Tickets", tickets);
+		if (!response.IsSuccessStatusCode)
+		{
+			return;
+		}
+		var ticketDevuelto = await response.Content.ReadFromJsonAsync<Tickets>();
+		if (ticketDevuelto is not null)
+		{
+			tickets = ticketDevuelto;
+			StateHasChanged();
+			this.Nuevo();
+		}
+	}
+
+	public async Task Buscar()
+	{
+		TicketsList = new List<Tickets>();
+
+		if (Filtro == 1 && tickets!.TicketId > 0)
+		{
+			TicketsList = (await httpClient.GetFromJsonAsync<List<Tickets>>($"api/Tickets"))!.Where(t => t.TicketId == tickets!.TicketId && t.Fecha >= Desde.Date && t.Fecha <= Hasta).ToList();
+		}
+		else if (Filtro == 2 && !string.IsNullOrEmpty(tickets!.Asunto))
+		{
+			TicketsList = (await httpClient.GetFromJsonAsync<List<Tickets>>($"api/Tickets"))!.Where(t => t.Asunto!.ToLower() == tickets!.Asunto.ToLower() && t.Fecha >= Desde.Date && t.Fecha <= Hasta).ToList();
+		}
+		else
+		{
+			TicketsList = await httpClient.GetFromJsonAsync<List<Tickets>>($"api/Tickets");
+		}
+		cuenta = TicketsList.Count();
+	}
+
+	void Nuevo()
+	{
+		this.tickets = new Tickets();
+		mensaje = string.Empty;
+	}
+
+	public async Task Eliminar()
+	{
+		using var response = await httpClient.DeleteAsync($"api/Tickets/{tickets?.TicketId}");
+		if (!response.IsSuccessStatusCode)
+		{
+			return;
+		}
+
+		Nuevo();
+	}
 }

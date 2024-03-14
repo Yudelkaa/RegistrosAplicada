@@ -1,5 +1,80 @@
-﻿<h3>Edit</h3>
+﻿@page "/EditTickets"
+@page "/EditTickets/TicketId={ticketId:int}"
+@inject NavigationManager NavigationManager
+@inject HttpClient httpClient
+
+<PageTitle>Editar Tickets</PageTitle>
+<EditForm Model="ticket" OnValidSubmit="Modificar">
+    <DataAnnotationsValidator />
+    <div class="container">
+        <div class="card shadow-lg">
+           
+            <div class="card-header">
+                <h3><strong>Editar Tickets</strong></h3>
+            </div>      
+            <div class="card-body">
+                <div class="col-3"></div>
+                <div class="mb-3">
+                    <div class="col-4">
+                        <label class="form-label fw-bold" for="ticketId">Id:</label>
+                        <div class="input-group">
+                            <InputNumber id="ticketId" class="form-control" @bind-Value="ticket.TicketId"></InputNumber>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-center">
+                <div class="px-2">
+                    <button type="button" class="btn btn-primary" @onclick="Detalle">Volver</button>
+                </div>
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-floppy-fill" /> Modificar
+                </button>
+            </div>
+        </div>
+    </div>
+    @mensaje
+</EditForm>
 
 @code {
+    [Parameter]
+    public Tickets ticket { get; set; } = new Tickets();
+    public string mensaje = "";
 
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Delay(500);
+
+        if (ticket.TicketId > 0)
+            ticket = await httpClient.GetFromJsonAsync<Tickets>($"api/Tickets/{ticket.TicketId}");
+    }
+
+    public async Task Modificar()
+    {
+        if (await Validar())
+            mensaje = "Error, ya existe un ticket con este ID";
+        else
+        {
+            var response = await httpClient.PutAsJsonAsync($"api/Tickets/{ticket.TicketId}", ticket);
+            if (response.IsSuccessStatusCode)
+            {
+                mensaje = "Modificación hecha correctamente";
+                await Task.Delay(2000);
+                Detalle();
+            }
+            else
+                mensaje = "Error";
+        }
+    }
+
+    void Detalle()
+    {
+        NavigationManager.NavigateTo("/Details");
+    }
+
+    public async Task<bool> Validar()
+    {
+        var response = await httpClient.GetAsync($"api/Tickets/{ticket.TicketId}");
+        return response.IsSuccessStatusCode;
+    }
 }
