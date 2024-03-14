@@ -1,5 +1,53 @@
-﻿<h3>View</h3>
+﻿@page "/ViewTickets"
+@inject HttpClient httpClient
+
+<PageTitle>Registro de Tickets</PageTitle>
+<div class="container">
+    <div class="card shadow-lg">
+        <div class="card-header alert-secondary" style="color: white; background-color: royalblue;">
+            <h1><strong>Ver Tickets</strong></h1>
+        </div>
+
+        <table class="table table-striped table-bordered justify-content">
+            <thead>
+                <tr class="text-center">
+                    <th>TicketId</th>
+                    <th>ClienteId</th>
+                    <th>Fecha</th>
+                    <th>Solicitado Por:</th>
+                    <th>Asunto</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ticket in listaTickets)
+                {
+                    <tr class="text-center">
+                        <td>@ticket.TicketId</td>
+                        <td>@ticket.ClienteId</td>
+                        <td>@ticket.Fecha</td>
+                        <td>@ticket.SolicitadoPor</td>
+                        <td>@ticket.Asunto</td>
+                        <td>@ticket.Descripcion</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div>@mensaje</div>
+</div>
 
 @code {
+    public List<Tickets> listaTickets { get; set; } = new List<Tickets>();
+    public string mensaje = "";
 
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarTickets();
+    }
+
+    public async Task CargarTickets()
+    {
+        listaTickets = await httpClient.GetFromJsonAsync<List<Tickets>>("api/Tickets");
+    }
 }
