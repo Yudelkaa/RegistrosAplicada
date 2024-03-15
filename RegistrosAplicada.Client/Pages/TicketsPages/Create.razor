@@ -62,61 +62,59 @@
 					</div>
 				</div>
 
-			</div>
-			<div class="card-footer justify-content-center d-flex">
-				<div>
-					<button type="submit" class="btn btn-primary bi bi-floppy">
-						Guardar<i class="oi oi-document" />
-					</button>
-				</div>
-			</div>
-		</div>
-		<div class="my-4"></div>
 
-		@*Tickets detalle*@
-		<div class="card shadow-lg">
 
-			<div class="card-header" style="color: white; background-color: royalblue;">
-				<h1 class="fw-bold">Detalle Ticket</h1>
+
+
+				@*Tickets detalle*@
+
+
+				<fieldset class="border-primmary border border-2">
+					<div class="card-body col-3">
+						<h3 class="fw-bold">Detalle Ticket</h3>
+
+						<div>
+							<label class="form-label fw-bold"><span class="bi bi-person-heart" /> Nombre:</label>
+							<InputText @bind-Value="Detalle.Emisor" class="form-control" placeholder="Enel Almonte"></InputText>
+							<ValidationMessage For="@(() => Detalle.Emisor)" />
+						</div>
+						<div>
+							<label class="form-label fw-bold"><span class="bi bi-chat-heart-fill" /> Mensaje:</label>
+							<InputTextArea @bind-Value="Detalle.Mensaje" class="form-control" placeholder="Escriba su mensaje"></InputTextArea>
+							<ValidationMessage For="@(() => Detalle.Mensaje)" />
+						</div>
+					</div>
+					<div class="card-footer d-flex justify-content-center">
+						<button type="submit" class="btn btn-primary bi bi-floppy">
+							Guardar<i class="oi oi-document" />
+						</button>
+						<button type="button" class="btn btn-success bi bi-plus-square-fill" @onclick="Agregar"> Agregar</button>
+					</div>
+					<table class='table table-sm justify-content-center'>
+						<thead>
+							<tr>
+								<th>TicketId</th>
+								<th>Emisor</th>
+								<th>Mensaje</th>
+								<th>Eliminar</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							@foreach (var detalle in tickets.TicketsDetalle)
+							{
+								var ticketEncontrado = BuscarTicket(detalle.TicketId);
+								<tr>
+									<td>@detalle.TicketId</td>
+									<td>@detalle.Emisor</td>
+									<td>@detalle.Mensaje</td>
+									<td><button type="button" class="btn btn-danger bi bi-trash" @onclick=@(() => RemoverDetalle(detalle))></button></td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</fieldset>
 			</div>
-			<div class="card-body">
-				<div>
-					<label class="form-label fw-bold"><span class="bi bi-person-heart" /> Nombre:</label>
-					<InputText @bind-Value="Detalle.Emisor" class="form-control" placeholder="Enel Almonte"></InputText>
-					<ValidationMessage For="@(() => Detalle.Emisor)" />
-				</div>
-				<div>
-					<label class="form-label fw-bold"><span class="bi bi-chat-heart-fill" /> Mensaje:</label>
-					<InputTextArea @bind-Value="Detalle.Mensaje" class="form-control" placeholder="Escriba su mensaje"></InputTextArea>
-					<ValidationMessage For="@(() => Detalle.Mensaje)" />
-				</div>
-			</div>
-			<div class="card-footer d-flex justify-content-center">
-				<button type="button" class="btn btn-success bi bi-plus-square-fill" @onclick="AddDetalle"> Agregar</button>
-			</div>
-			<table class='table table-sm justify-content-center'>
-				<thead>
-					<tr>
-						<th>TicketId</th>
-						<th>Emisor</th>
-						<th>Mensaje</th>
-						<th>Eliminar</th>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody>
-					@foreach (var detalle in tickets.TicketsDetalle)
-					{
-						var ticketEncontrado = BuscarTicket(detalle.TicketId);
-						<tr>
-							<td>@detalle.TicketId</td>
-							<td>@detalle.Emisor</td>
-							<td>@detalle.Mensaje</td>
-							<td><button type="button" class="btn btn-danger bi bi-trash" @onclick=@(() => RemoverDetalle(detalle))></button></td>
-						</tr>
-					}
-				</tbody>
-			</table>
 		</div>
 	</div>
 </EditForm>
@@ -130,17 +128,15 @@
 	public Tickets tickets { get; set; } = new Tickets();
 	public TicketDetalle Detalle { get; set; } = new TicketDetalle();
 
-	public bool mensajeVacio;
+	public string? mensaje;
 	public int resultado;
 	public bool emisorVacio;
 
 	protected override async Task OnInitializedAsync()
 	{
-		if (TicketId > 0)
-		{
-			this.tickets.TicketId = TicketId;
-			await Buscar();
-		}
+		ListaDetalles = (await httpClient.GetFromJsonAsync<List<TicketDetalle>>("api/Tickets"))!;
+		tickets.Fecha = DateTime.Today;
+		Nuevo();
 	}
 
 
@@ -175,21 +171,44 @@
 
 	public async Task Guardar()
 	{
-		var response = await httpClient.PostAsJsonAsync("api/Tickets", tickets);
+		var guardadoTicket = await httpClient.PostAsJsonAsync("Tickets", tickets);
 
-		if (!response.IsSuccessStatusCode)
+		if (guardadoTicket.IsSuccessStatusCode)
 		{
-			return;
+			resultado = 1;
+			mensaje = "Registro Guardado";
+			tickets = new Tickets();
+			tickets.Fecha = DateTime.Today;
 		}
-		tickets = new Tickets();
+		else
+		{
+			resultado = 2;
+			mensaje = "Registro No Guardado";
+		}
 	}
 
 
-	public async Task AddDetalle()
+	public void Agregar()
 	{
-		tickets.TicketsDetalle.Add(Detalle);
-		Detalle = new TicketDetalle();
+		if (Validar())
+		{
+			resultado = 3;
+			mensaje = "ya existe";
+		}
+		else
+		{
+				tickets.TicketsDetalle.Add(Detalle);
+				Detalle = new TicketDetalle();
+
+		}
 	}
+
+	public void Remove(TicketDetalle details)
+	{
+		Detalle = details;
+		tickets.TicketsDetalle.Remove(Detalle);
+	}
+
 
 	public void Nuevo()
 	{
@@ -210,14 +229,13 @@
 	public async Task RemoverDetalle(TicketDetalle detalle)
 	{
 
-		var detalleEncontrado = tickets.TicketsDetalle.FirstOrDefault(t => t.DetalleId == detalle.DetalleId);
-		if (detalleEncontrado != null)
-		{
-			var ticket = BuscarTicket(detalleEncontrado.TicketId);
-			detalle = detalleEncontrado;
-			Detalle = detalleEncontrado;
-			tickets.TicketsDetalle.Remove(detalle);
-			await httpClient.DeleteAsync($"api/Tickets/DeleteTicketsMessages/{detalle.DetalleId}");
-		}
+		Detalle = detalle;
+		tickets.TicketsDetalle.Remove(Detalle);
+	}
+
+	public bool Validar()
+	{
+		return tickets.TicketsDetalle.
+			Any(x => x.Emisor!.ToLower() == Detalle.Emisor!.ToLower());
 	}
 }
