@@ -1,9 +1,10 @@
-﻿@page "/Delete"
-@page "/Delete/{ClienteId:int}"
+﻿@page "/Delete/{ClienteId:int}"
 @using Shared.Models
 @inject HttpClient httpClient
+@inject NavigationManager navigation
 
-<PageTitle>Eliminar Vehiculo</PageTitle>
+<PageTitle>Eliminar Cliente</PageTitle>
+<EditForm Model="cliente" OnValidSubmit="Eliminar">
 <div class="container">
 	<div class="card shadow-lg">
 		<div class="card-header alert-secondary" style="color: white; background-color: royalblue;">
@@ -30,27 +31,31 @@
 		</div>
 	</div>
 </div>
-
+</EditForm>
 
 @code {
+	[Parameter]
 	public int ClienteId { get; set; }
 	public Clientes cliente { get; set; } = new Clientes();
-	public List<Clientes> clientes = new List<Clientes>();
 	public string? filtro { get; set; }
 	public string? mensaje { get; set; }
 
 
+	protected override async Task OnInitializedAsync()
+	{
+		if (ClienteId > 0)
+		{
+			cliente = await httpClient.GetFromJsonAsync<Clientes>($"api/Clientes/{ClienteId}");
+		}
+	}
+
 	public async Task Eliminar()
 	{
-		var eliminado = await httpClient.DeleteAsync($"api/Clientes/{ClienteId}");
-		if (eliminado.IsSuccessStatusCode)
+		var response = await httpClient.DeleteAsync($"api/Clientes/{ClienteId}");
+		if (response.IsSuccessStatusCode)
 		{
 			mensaje = "Eliminado correctamente";
-			cliente = new Clientes();
-		}
-		else
-		{
-			mensaje = "Error al eliminar";
+			navigation.NavigateTo("/Clientes");
 		}
 	}
 }

@@ -10,6 +10,7 @@
             <h1><strong>Consultas</strong></h1>
             <h3>Prioridades</h3>
         </div>
+
         <table class="table table-striped table-bordered">
             <thead>
                 <tr class="text-center">
@@ -28,7 +29,7 @@
                         <td>@prioridad.PrioridadesId</td>
                         <td>@prioridad.Descripcion</td>
                         <td>@prioridad.DiasCompromiso</td>
-                        <td><button class="btn btn-success bi bi-book" @onclick="() => Ver()"></button></td>
+                        <td><button class="btn btn-success bi bi-book" @onclick="() => Ver(prioridad.PrioridadesId)"></button></td>
                         <td><button class="btn btn-primary bi bi-pencil" @onclick="() => Editar(prioridad.PrioridadesId)"></button></td>
                         <td><button class="btn btn-danger bi bi-trash" @onclick="() => Eliminar(prioridad.PrioridadesId)"></button></td>
                     </tr>
@@ -46,10 +47,10 @@
         listaPrioridades = await httpClient.GetFromJsonAsync<List<Prioridades>>("api/Prioridades");
     }
 
-    private void Ver()
-    {
-        navigation.NavigateTo($"/ViewPrioridades");
-    }
+     private void Ver(int prioridadId)
+     {
+         navigation.NavigateTo($"/ViewPrioridades/{prioridadId}");
+     }
 
     private void Editar(int prioridadId)
     {

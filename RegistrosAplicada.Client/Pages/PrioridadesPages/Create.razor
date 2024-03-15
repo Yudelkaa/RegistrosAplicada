@@ -51,7 +51,6 @@
 @code {
     public Prioridades prioridad { get; set; } = new Prioridades();
 
-
     public async Task Buscar()
     {
         var response = await httpClient.GetAsync($"api/Prioridades/{prioridad.PrioridadesId}");
@@ -69,5 +68,6 @@
             prioridad = new Prioridades();
         }
     }
+
 
 }

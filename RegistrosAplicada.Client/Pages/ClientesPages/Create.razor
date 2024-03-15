@@ -1,125 +1,107 @@
-﻿@* HAZ QUE BUSQUE lindeeeeeeeeee*@
-@page "/Create"
+﻿@page "/Create"
 @using Shared.Models
 @inject HttpClient httpClient
 
 <PageTitle>Registro de Clientes</PageTitle>
-<EditForm Model="clientes">
-	<DataAnnotationsValidator />
-	<div class="container">
-		<div class="card shadow-lg">
-			<div class="card-header alert-secondary" style="color: white; background-color: royalblue;">
-				<NavLink class="btn btn-light float-end" href="Clientes">Consultar Clientes</NavLink>
-				<h1><strong>Crear</strong></h1>
-				<h3>Clientes</h3>
-			</div>
+<EditForm Model="clientes" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header alert-secondary" style="color: white; background-color: royalblue;">
+                <NavLink class="btn btn-light float-end" href="Clientes">Consultar Clientes</NavLink>
+                <h1><strong>Crear</strong></h1>
+                <h3>Clientes</h3>
+            </div>
 
-			<div class="card-body">
+            <div class="card-body">
 
-				<div class="input-group mb-3">
-					<div class="col-xs-8 col-sm-12 col-md-8 col-lg-3 col-xl-2.5">
-						<label class="fw-bold">ID:</label>
-						<div class="input-group">
-							<InputNumber @bind-Value="clientes.ClientesId" class="form-control" aria-describedby="BotonBuscar" />
-							<button @* @onclick="Buscar" *@ class="btn btn-primary bi bi-search-heart" type="button" id="BotonBuscar"></button>
-						</div>
-					</div>
-				</div>
-				<div class="row">
+                <div class="input-group mb-3">
+                    <div class="col-3">
+                        <label class="fw-bold">ID:</label>
+                        <div class="input-group">
+                            <InputNumber @bind-Value="clientes.ClientesId" class="form-control" aria-describedby="BotonBuscar" />
+                            <button class="btn btn-primary bi bi-search-heart" type="button" id="BotonBuscar" @onclick="Buscar"></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
 
-					<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
-						<label class="form-label fw-bold" for="Nombres">Nombre:</label>
-						<InputText @bind-Value="clientes.Nombres" class="form-control" />
-						<ValidationMessage For="@(() => clientes.Nombres)" />
-					</div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                        <label class="form-label fw-bold" for="Nombres">Nombre:</label>
+                        <InputText @bind-Value="clientes.Nombres" class="form-control" />
+                        <ValidationMessage For="@(() => clientes.Nombres)" />
+                    </div>
 
-					<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
-						<label class="form-label fw-bold" for="RNC">RNC:</label>
-						<InputNumber @bind-Value="clientes.RNC" class="form-control" />
-						<ValidationMessage For="@(() => clientes.RNC)" />
-					</div>
-				</div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                        <label class="form-label fw-bold" for="RNC">RNC:</label>
+                        <InputNumber @bind-Value="clientes.RNC" class="form-control" />
+                        <ValidationMessage For="@(() => clientes.RNC)" />
+                    </div>
+                </div>
 
-				<div class="row">
-					<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
-						<label class="form-label fw-bold" for="Celular">Celular:</label>
-						<InputNumber @bind-Value="clientes.Celular" class="form-control" />
-						<ValidationMessage For="@(() => clientes.Celular)" />
-					</div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                        <label class="form-label fw-bold" for="Celular">Celular:</label>
+                        <InputNumber @bind-Value="clientes.Celular" class="form-control" />
+                        <ValidationMessage For="@(() => clientes.Celular)" />
+                    </div>
 
-					<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
-						<label class="form-label fw-bold" for="Email">Email:</label>
-						<InputText @bind-Value="clientes.Email" class="form-control" />
-						<ValidationMessage For="@(() => clientes.Email)" />
-					</div>
-				</div>
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                        <label class="form-label fw-bold" for="Email">Email:</label>
+                        <InputText @bind-Value="clientes.Email" class="form-control" />
+                        <ValidationMessage For="@(() => clientes.Email)" />
+                    </div>
+                </div>
 
-				<div class="row">
-					<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
-						<label class="form-label fw-bold" for="Telefono">Tel&eacute;fono:</label>
-						<InputNumber @bind-Value="clientes.Telefono" class="form-control" />
-						<ValidationMessage For="@(() => clientes.Telefono)" />
-					</div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                        <label class="form-label fw-bold" for="Telefono">Teléfono:</label>
+                        <InputNumber @bind-Value="clientes.Telefono" class="form-control" />
+                        <ValidationMessage For="@(() => clientes.Telefono)" />
+                    </div>
 
-					<div class="col-xs-12 col-sm-12 col-md-12 col-lg-4 col-xl-4">
-						<label class="form-label fw-bold" for="Direccion">Direcci&oacute;n:</label>
-						<div class="input-group">
-							<InputText @bind-Value="clientes.Direccion" class="form-control" />
-						</div>
-						<ValidationMessage For="@(() => clientes.Direccion)" /><br />
-					</div>
-				</div>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-4 col-xl-4">
+                        <label class="form-label fw-bold" for="Direccion">Dirección:</label>
+                        <InputText @bind-Value="clientes.Direccion" class="form-control" />
+                        <ValidationMessage For="@(() => clientes.Direccion)" /><br />
+                    </div>
+                </div>
 
-				<div class="card-footer d-flex justify-content">
-					<div class="col-xs-18 col-sm-12 col-md-10 col-lg-30 col-xl-40">
-						<button type="button" class="btn btn-primary bi bi-file-earmark-plus " @* @onclick="Nuevo" *@>Nuevo<i class="oi oi-file" /></button>
-						<button type="submit" class="btn btn-success bi bi-floppy">Guardar<i class="oi oi-document" /></button>
-
-					</div>
-				</div>
-				@mensaje
-			</div>
-		</div>
-	</div>
+                <div class="card-footer d-flex justify-content">
+                    <div class="col-xs-18 col-sm-12 col-md-10 col-lg-30 col-xl-40">
+                        <button type="button" class="btn btn-primary bi bi-file-earmark-plus" @onclick="Nuevo">Nuevo<i class="oi oi-file"></i></button>
+                        <button type="submit" class="btn btn-success bi bi-floppy">Guardar<i class="oi oi-document"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </EditForm>
 
-
 @code {
-	public Clientes clientes { get; set; } = new Clientes();
-	public string? mensaje;
-	public string? rnc;
-	public int resultado { get; set; }
+    public Clientes clientes { get; set; } = new Clientes();
 
-	public async Task Guardar()
-	{
-		var guardadoVehi = await httpClient.PostAsJsonAsync("api/Clientes", clientes);
+    public async Task Guardar()
+    {
+        var response = await httpClient.PostAsJsonAsync("api/Clientes", clientes);
+        if (response.IsSuccessStatusCode)
+        {
+            clientes = await response.Content.ReadFromJsonAsync<Clientes>();
+        }
+    }
 
-		if (guardadoVehi.IsSuccessStatusCode)
-		{
-			resultado = 1;
-			mensaje = "Guardado";
-			clientes = new Clientes();
-		}
-		else
-		{
-			resultado = 2;
-			mensaje = "No se pudo guardar";
-		}
-	}
+    public async Task Buscar()
+    {
+        var response = await httpClient.GetAsync($"api/Clientes/{clientes.ClientesId}");
+        if (response.IsSuccessStatusCode)
+        {
+            clientes = await response.Content.ReadFromJsonAsync<Clientes>();
+        }
+    }
 
-
-	public void Mensaje()
-	{
-		resultado = 0;
-		mensaje = string.Empty;
-	}
-
-	public void Nuevo()
-	{
-		clientes = new Clientes();
-		Mensaje();
-	}
-
-
+    private void Nuevo()
+    {
+        clientes = new Clientes();
+    }
 }
