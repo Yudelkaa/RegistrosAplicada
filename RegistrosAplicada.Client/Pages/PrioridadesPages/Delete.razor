@@ -1,76 +1,60 @@
-﻿@page "/DeletePrioridades"
-@page "/DeletePrioridades/{PrioridadId:int}"
+﻿@page "/DeletePrioridades/{PrioridadesId:int}"
 @using Shared.Models
 @inject HttpClient httpClient
+@inject NavigationManager navigation
 
 <PageTitle>Eliminar Prioridad</PageTitle>
-<div class="container">
-    <div class="card shadow-lg">
-        <div class="card-header text-center">
-            <h2>Eliminar</h2>
-        </div>
+<EditForm Model="prioridades" OnValidSubmit="EliminarPrioridad">
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header text-center">
+                <h2>Eliminar</h2>
+            </div>
 
-        <div class="card-body">
-            <h3 class="text-danger text-center">¿Seguro que quiere eliminar?</h3>
-            <ul>
-                <li>Prioridad Id: @prioridades.PrioridadesId</li>
-                <li>Descricpi&oacute;n: @prioridades.Descripcion</li>
-                <li>D&iacute;s compromiso: @prioridades.DiasCompromiso</li>
-            </ul>
-        </div>
-        <div class="card-footer text-center">
-            <div class="input-group">
-                <button class="btn btn-danger" @onclick="Eliminar">S&iacute;</button>
-                <a href="/Details" class="btn btn-success">Volver</a>
+            <div class="card-body">
+                <h3 class="text-danger text-center">¿Seguro que quiere eliminar?</h3>
+                <ul>
+                    <li>Prioridad Id: @prioridades.PrioridadesId</li>
+                    <li>Descripción: @prioridades.Descripcion</li>
+                    <li>Días compromiso: @prioridades.DiasCompromiso</li>
+                </ul>
+            </div>
+            <div class="card-footer text-center">
+                <div class="input-group">
+                    <button type="submit" class="btn btn-danger">Sí</button>
+                    <button type="button" class="btn btn-success" @onclick="Cancelar">Volver</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</EditForm>
 
 @code {
     [Parameter]
-    public int PrioridadId { get; set; }
+    public int PrioridadesId { get; set; }
     public Prioridades prioridades { get; set; } = new Prioridades();
-    public List<Prioridades> listaPrioridades { get; set; } = new List<Prioridades>();
-    public string? mensaje { get; set; } = "";
-
-    public async Task Buscar()
-    {
-        var response = await httpClient.GetAsync($"api/Prioridades/{prioridades.PrioridadesId}");
-        if (response.IsSuccessStatusCode)
-        {
-            prioridades = await response.Content.ReadFromJsonAsync<Prioridades>();
-        }
-        else
-        {
-            prioridades = null;
-        }
-    }
+    public string mensaje { get; set; } = "";
 
     protected override async Task OnInitializedAsync()
     {
-        if (PrioridadId > 0)
+        if (PrioridadesId > 0)
         {
-            var VehiculosEncontrado = await httpClient.GetFromJsonAsync<Prioridades>($"api/Prioridades/{PrioridadId}");
-            if (VehiculosEncontrado != null)
-            {
-                prioridades = VehiculosEncontrado;
-
-            }
+            prioridades = await httpClient.GetFromJsonAsync<Prioridades>($"api/Prioridades/{PrioridadesId}");
         }
     }
 
-    public async Task Eliminar()
+    public async Task EliminarPrioridad()
     {
-        var eliminado = await httpClient.DeleteAsync($"api/Prioridades/{PrioridadId}");
-        if (eliminado.IsSuccessStatusCode)
+        var response = await httpClient.DeleteAsync($"api/Prioridades/{PrioridadesId}");
+        if (response.IsSuccessStatusCode)
         {
             mensaje = "Eliminado correctamente";
-            prioridades = new Prioridades();
+            navigation.NavigateTo("/Prioridades");
         }
-        else
-        {
-            mensaje = "Error al eliminar";
-        }
+    }
+
+    private void Cancelar()
+    {
+        navigation.NavigateTo("/Prioridades");
     }
 }

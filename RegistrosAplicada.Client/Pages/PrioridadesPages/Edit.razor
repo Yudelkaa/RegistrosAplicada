@@ -5,69 +5,71 @@
 
 <PageTitle>Editar Prioridades</PageTitle>
 <EditForm Model="prioridades" OnValidSubmit="Modificar">
-    <DataAnnotationsValidator />
-    <div class="container">
-        <div class="card shadow-lg">
-            <div class="card-header alert-secondary" style="color: white; background-color: royalblue;">
-                <h3 class="fw-bold">Editar Prioridades</h3>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-6">
-                        <label class="fw-bold">Id</label>
-                        <InputNumber @bind-Value="prioridades.PrioridadesId" class="form-control" />
-                        <ValidationMessage For="@(()=> prioridades.PrioridadesId)" />
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-6">
-                        <label class="fw-bold">Descripci&oacute;n</label>
-                        <InputText @bind-Value="prioridades.Descripcion" class="form-control" />
-                        <ValidationMessage For="@(()=> prioridades.Descripcion)" />
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-6">
-                        <label class="fw-bold">D&iacute;s compromiso</label>
-                        <InputNumber @bind-Value="prioridades.DiasCompromiso" class="form-control" />
-                        <ValidationMessage For="@(()=> prioridades.DiasCompromiso)" />
-                    </div>
-                </div>
-            </div>
-            <div class="card-footer d-flex justify-content-center">
-                <div class="px-2">
-                    <button class="btn btn-primary" href="Index">Volver</button>
-                </div>
-                <button type="submit" class="btn btn-success"><i class="bi bi-floppy-fill" /> Modificar</button>
-            </div>
-        </div>
-        @mensaje
-    </div>
+	<DataAnnotationsValidator />
+	<div class="container">
+		<div class="card shadow-lg">
+			<div class="card-header alert-secondary" style="color: white; background-color: royalblue;">
+				<h1 class="fw-bold">Editar Prioridades</h1>
+			</div>
+			<div class="card-body">
+				<div class="row">
+					<div class="col-6">
+						<label class="fw-bold">Id</label>
+						<InputNumber @bind-Value="prioridades.PrioridadesId" class="form-control" />
+						<ValidationMessage For="@(()=> prioridades.PrioridadesId)" />
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-6">
+						<label class="fw-bold">Descripci&oacute;n</label>
+						<InputText @bind-Value="prioridades.Descripcion" class="form-control" />
+						<ValidationMessage For="@(()=> prioridades.Descripcion)" />
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-6">
+						<label class="fw-bold">D&iacute;as de compromiso</label>
+						<InputNumber @bind-Value="prioridades.DiasCompromiso" class="form-control" />
+						<ValidationMessage For="@(()=> prioridades.DiasCompromiso)" />
+					</div>
+				</div>
+			</div>
+			<div class="card-footer d-flex justify-content-center">
+				<div class="px-2">
+					<a class="bi bi-house btn btn-primary" href="/Prioridades"> Volver</a>
+				</div>
+				<button type="submit" class="btn btn-success"><i class="bi bi-floppy-fill" /> Modificar</button>
+			</div>
+		</div>
+		@mensaje
+	</div>
 </EditForm>
 
 @code {
-    [Parameter]
-    public int PrioridadesId { get; set; }
-    public Prioridades prioridades { get; set; } = new Prioridades();
-    public string mensaje = "";
+	[Parameter]
+	public int PrioridadesId { get; set; }
+	public Prioridades prioridades { get; set; } = new Prioridades();
+	public string mensaje = "";
 
-    public async Task Modificar()
-    {
-        try
-        {
-            var response = await httpClient.PutAsJsonAsync($"api/Prioridades/{PrioridadesId}", prioridades);
-            if (response.IsSuccessStatusCode)
-            {
-                mensaje = "Modificación hecha correctamente";
-            }
-            else
-            {
-                mensaje = "Error de capa 8";
-            }
-        }
-        catch (Exception ex)
-        {
-            mensaje = $"Error: {ex.Message}";
-        }
-    }
+	protected override async Task OnInitializedAsync()
+	{
+
+		if (PrioridadesId > 0)
+		{
+			prioridades = await httpClient.GetFromJsonAsync<Prioridades>($"api/Prioridades/{PrioridadesId}");
+		}
+	}
+
+	public async Task Modificar()
+	{
+		var response = await httpClient.PutAsJsonAsync($"api/Prioridades/{PrioridadesId}", prioridades);
+		if (response.IsSuccessStatusCode)
+		{
+			mensaje = "Modificación hecha correctamente";
+		}
+		else
+		{
+			mensaje = "Error de capa 8";
+		}
+	}
 }

@@ -42,7 +42,7 @@
             </div>
 
             <div class="card-footer d-flex justify-content-center">
-                <button type="submit" class="btn btn-primary bi bi-floppy">Guardar</button>
+                <button type="submit" class="btn btn-primary bi bi-floppy"> Guardar</button>
             </div>
         </div>
     </div>
@@ -51,16 +51,13 @@
 @code {
     public Prioridades prioridad { get; set; } = new Prioridades();
 
+
     public async Task Buscar()
     {
         var response = await httpClient.GetAsync($"api/Prioridades/{prioridad.PrioridadesId}");
         if (response.IsSuccessStatusCode)
         {
             prioridad = await response.Content.ReadFromJsonAsync<Prioridades>();
-        }
-        else
-        {
-            // Handle error if the priority with the given ID is not found
         }
     }
 
@@ -69,17 +66,8 @@
         var response = await httpClient.PostAsJsonAsync("api/Prioridades", prioridad);
         if (response.IsSuccessStatusCode)
         {
-            // Success, reset form
-            Nuevo();
-        }
-        else
-        {
-            // Handle error if the save operation fails
+            prioridad = new Prioridades();
         }
     }
 
-    void Nuevo()
-    {
-        prioridad = new Prioridades();
-    }
 }

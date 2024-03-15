@@ -1,5 +1,4 @@
-﻿@page "/EditTickets"
-@page "/EditTickets/TicketId={ticketId:int}"
+﻿@page "/EditTickets/TicketId={ticketId:int}"
 @inject NavigationManager NavigationManager
 @inject HttpClient httpClient
 
@@ -59,7 +58,6 @@
             if (response.IsSuccessStatusCode)
             {
                 mensaje = "Modificación hecha correctamente";
-                await Task.Delay(2000);
                 Detalle();
             }
             else

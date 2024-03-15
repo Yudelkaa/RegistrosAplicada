@@ -1,7 +1,6 @@
 ﻿@page "/Prioridades"
-@page "/Prioridades/{PrioridadesId:int}"
+@inject HttpClient httpClient
 @inject NavigationManager navigation
-@inject HttpClient httpClient;
 
 <PageTitle>Registro de Prioridades</PageTitle>
 <div class="container">
@@ -14,8 +13,10 @@
         <table class="table table-striped table-bordered">
             <thead>
                 <tr class="text-center">
+                    <th>Id</th>
                     <th>Descripción</th>
-                    <th>D&iacute;as compromiso</th>
+                    <th>Días compromiso</th>
+                    <th>Ver</th>
                     <th>Editar</th>
                     <th>Eliminar</th>
                 </tr>
@@ -24,31 +25,13 @@
                 @foreach (var prioridad in listaPrioridades)
                 {
                     <tr class="text-center">
+                        <td>@prioridad.PrioridadesId</td>
                         <td>@prioridad.Descripcion</td>
                         <td>@prioridad.DiasCompromiso</td>
-                        <td><button class="btn btn-primary bi bi-pencil" @onclick="() => Editar(prioridad)"></button></td>
-                        @* <td><button class="btn btn-danger bi bi-trash" @onclick="() => Eliminar()"></button></td> *@
+                        <td><button class="btn btn-success bi bi-book" @onclick="() => Ver()"></button></td>
+                        <td><button class="btn btn-primary bi bi-pencil" @onclick="() => Editar(prioridad.PrioridadesId)"></button></td>
+                        <td><button class="btn btn-danger bi bi-trash" @onclick="() => Eliminar(prioridad.PrioridadesId)"></button></td>
                     </tr>
-                    @if (prioridadEditando == prioridad.PrioridadesId)
-                    {
-                        <tr>
-                            <td colspan="4">
-                             
-                                    <div class="form-group">
-                                        <label for="Descripcion">Descripci&oacute;n</label>
-                                        <input id="Descripcion" @bind="prioridad.Descripcion" class="form-control" />
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="DiasCompromiso">Días compromiso:</label>
-                                        <input id="DiasCompromiso" @bind="prioridad.DiasCompromiso" class="form-control" />
-                                    </div>
-                                    <div class="form-group">
-                                        <span class="text-danger">@mensaje</span>
-                                    </div>
-                                    <button type="submit" class="btn btn-success bi bi-floppy">Guardar</button>
-                            </td>
-                        </tr>
-                    }
                 }
             </tbody>
         </table>
@@ -56,23 +39,25 @@
 </div>
 
 @code {
-    [Parameter]
-    public int PrioridadesId { get; set; }
-    public Prioridades prioridad { get; set; } = new Prioridades();
     public List<Prioridades> listaPrioridades = new List<Prioridades>();
-    public string mensaje = string.Empty;
-    public int? prioridadEditando = null;
 
-    private void Editar(Prioridades prioridad)
+    protected override async Task OnInitializedAsync()
     {
-        this.prioridad = prioridad;
-        prioridadEditando = prioridad.PrioridadesId;
+        listaPrioridades = await httpClient.GetFromJsonAsync<List<Prioridades>>("api/Prioridades");
     }
 
-    void Eliminar(int id)
+    private void Ver()
     {
-        navigation.NavigateTo($"/Delete/PrioridadId:{id}");
+        navigation.NavigateTo($"/ViewPrioridades");
     }
 
+    private void Editar(int prioridadId)
+    {
+        navigation.NavigateTo($"/EditPrioridades/{prioridadId}");
+    }
 
+    private void Eliminar(int prioridadId)
+    {
+        navigation.NavigateTo($"/DeletePrioridades/{prioridadId}");
+    }
 }
